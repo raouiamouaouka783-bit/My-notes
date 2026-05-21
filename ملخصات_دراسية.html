@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ملخصاتي الدراسية - إعلام الآلي</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --card: #111827;
+    --card2: #1a2235;
+    --accent1: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --border: #1e293b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background effect */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -30%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 3rem 0 2rem;
+    animation: fadeDown 0.8s ease;
+  }
+
+  .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15));
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent1);
+    padding: 0.4rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+  }
+
+  h1 {
+    font-size: 2.8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff 30%, var(--accent1));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+
+  .tab {
+    padding: 0.7rem 1.8rem;
+    border-radius: 50px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .tab:hover {
+    border-color: var(--accent1);
+    color: var(--accent1);
+    transform: translateY(-2px);
+  }
+
+  .tab.active {
+    background: linear-gradient(135deg, var(--accent2), #5b21b6);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+  }
+
+  /* Sections */
+  .section {
+    display: none;
+    animation: fadeUp 0.5s ease;
+  }
+  .section.active { display: block; }
+
+  /* Topic cards */
+  .topic-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 1.2rem;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+
+  .topic-card:hover {
+    border-color: rgba(0,212,255,0.3);
+    transform: translateY(-2px);
+  }
+
+  .topic-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 1.5rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .topic-title {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .topic-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .icon-blue { background: rgba(0,212,255,0.15); }
+  .icon-purple { background: rgba(124,58,237,0.15); }
+  .icon-green { background: rgba(16,185,129,0.15); }
+  .icon-orange { background: rgba(249,115,22,0.15); }
+
+  .arrow {
+    color: var(--muted);
+    transition: transform 0.3s;
+    font-size: 0.8rem;
+  }
+
+  .topic-card.open .arrow { transform: rotate(180deg); }
+
+  .topic-body {
+    display: none;
+    padding: 0 1.5rem 1.5rem;
+    border-top: 1px solid var(--border);
+    margin-top: 0;
+  }
+
+  .topic-card.open .topic-body { display: block; }
+
+  .note-item {
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .note-item:last-child { border-bottom: none; }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 0.45rem;
+    flex-shrink: 0;
+  }
+
+  .dot-blue { background: var(--accent1); }
+  .dot-purple { background: var(--accent2); }
+  .dot-green { background: var(--accent3); }
+  .dot-orange { background: #f97316; }
+
+  .note-text {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #cbd5e1;
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  .note-text strong {
+    color: var(--accent1);
+    font-weight: 700;
+  }
+
+  /* Definition box */
+  .def-box {
+    background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(124,58,237,0.06));
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: #94a3b8;
+  }
+
+  .def-box span {
+    color: var(--accent1);
+    font-weight: 700;
+  }
+
+  /* Progress */
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0.5rem 0 1rem;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    animation: fillBar 1s ease;
+  }
+
+  /* Stats */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.8s ease 0.3s both;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 1.8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fillBar {
+    from { width: 0; }
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.8rem; }
+    .stats { grid-template-columns: repeat(3, 1fr); }
+    .stat-num { font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">📚 ملخصاتي الدراسية</div>
+    <h1>إعلام الآلي</h1>
+    <p class="subtitle">مبادئ إعلام الآلي • شبكات الحاسوب</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-num">2</div>
+      <div class="stat-label">مادة</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">8</div>
+      <div class="stat-label">موضوع</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">✓</div>
+      <div class="stat-label">منظم</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showSection('cs')">💻 مبادئ إعلام الآلي</button>
+    <button class="tab" onclick="showSection('net')">🌐 شبكات الحاسوب</button>
+  </div>
+
+  <!-- مبادئ إعلام الآلي -->
+  <div class="section active" id="cs">
+
+    <div class="topic-card" onclick="toggleCard(this)">
+      <div class="topic-header">
+        <div class="topic-title">
+          <div class="topic-icon icon-blue">🖥️</div>
+          ما هو الحاسوب؟
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="topic-body">
+        <div class="def-box">
+          <span>تعريف:</span> الحاسوب هو جهاز إلكتروني يقوم بمعالجة البيانات وتحويلها إلى معلومات مفيدة بسرعة كبيرة ودقة عالية.
+        </div>
+        <div class="note-item">
+          <div class="dot dot-blue"></div>
+          <div class="note-text"><strong>المدخلات (Input):</strong> البيانات التي ندخلها للحاسوب مثل النص أو الصور</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-blue"></div>
+          <div class="note-text"><strong>المعالجة (Processing):</strong> تحويل البيانات داخل المعالج CPU</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-blue"></div>
+          <div class="note-text"><strong>المخرجات (Output):</strong> النتائج التي يعرضها الحاسوب مثل الصور على الشاشة</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-blue"></div>
+          <div class="note-text"><strong>التخزين (Storage):</strong> حفظ البيانات في الذاكرة أو القرص الصلب</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="topic-card" onclick="toggleCard(this)">
+      <div class="topic-header">
+        <div class="topic-title">
+          <div class="topic-icon icon-purple">⚙️</div>
+          مكونات الحاسوب (Hardware)
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="topic-body">
+        <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+        <div class="note-item">
+          <div class="dot dot-purple"></div>
+          <div class="note-text"><strong>المعالج CPU:</strong> عقل الحاسوب، يقوم بتنفيذ العمليات الحسابية والمنطقية</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-purple"></div>
+          <div class="note-text"><strong>الذاكرة RAM:</strong> تخزين مؤقت للبيانات أثناء التشغيل، تُمسح عند الإغلاق</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-purple"></div>
+          <div class="note-text"><strong>القرص الصلب HDD/SSD:</strong> تخزين دائم للملفات والبرامج</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-purple"></div>
+          <div class="note-text"><strong>اللوحة الأم Motherboard:</strong> تربط جميع المكونات ببعضها</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-purple"></div>
+          <div class="note-text"><strong>بطاقة الرسوميات GPU:</strong> معالجة الصور والألعاب والذكاء الاصطناعي</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="topic-card" onclick="toggleCard(this)">
+      <div class="topic-header">
+        <div class="topic-title">
+          <div class="topic-icon icon-green">📀</div>
+          البرمجيات (Software)
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="topic-body">
+        <div class="note-item">
+          <div class="dot dot-green"></div>
+          <div class="note-text"><strong>نظام التشغيل OS:</strong> مثل Windows و Linux و macOS - يتحكم في الحاسوب</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-green"></div>
+          <div class="note-text"><strong>برامج التطبيقات:</strong> مثل Word و Chrome و VLC</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-green"></div>
+          <div class="note-text"><strong>برامج النظام:</strong> مثل برامج مكافحة الفيروسات وإدارة الملفات</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="topic-card" onclick="toggleCard(this)">
+      <div class="topic-header">
+        <div class="topic-title">
+          <div class="topic-icon icon-orange">🔢</div>
+          النظام الثنائي (Binary)
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="topic-body">
+        <div class="def-box">
+          <span>مهم جداً:</span> الحاسوب يفهم فقط رقمين: <strong style="color:#f97316">0 و 1</strong>. كل شيء في الحاسوب (صور، نصوص، أصوات) يُحوَّل إلى هذين الرقمين!
+        </div>
+        <div class="note-item">
+          <div class="dot dot-orange"></div>
+          <div class="note-text"><strong>Bit:</strong> أصغر وحدة معلومات = 0 أو 1</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-orange"></div>
+          <div class="note-text"><strong>Byte:</strong> 8 bits مجتمعة = تمثل حرفاً واحداً</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-orange"></div>
+          <div class="note-text"><strong>Kilobyte KB:</strong> 1024 Byte | <strong>Megabyte MB:</strong> 1024 KB</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-orange"></div>
+          <div class="note-text"><strong>مثال:</strong> الرقم 5 بالنظام الثنائي = <strong style="color:#f97316">101</strong></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- شبكات -->
+  <div class="section" id="net">
+
+    <div class="topic-card" onclick="toggleCard(this)">
+      <div class="topic-header">
+        <div class="topic-title">
+          <div class="topic-icon icon-blue">🌐</div>
+          ما هي الشبكة؟
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="topic-body">
+        <div class="def-box">
+          <span>تعريف:</span> الشبكة هي مجموعة من الأجهزة المتصلة ببعضها لتبادل البيانات والموارد مثل الملفات والطابعات والإنترنت.
+        </div>
+        <div class="note-item">
+          <div class="dot dot-blue"></div>
+          <div class="note-text"><strong>LAN (الشبكة المحلية):</strong> تربط أجهزة في مكان واحد مثل المنزل أو المدرسة</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-blue"></div>
+          <div class="note-text"><strong>WAN (الشبكة الواسعة):</strong> تربط مناطق جغرافية بعيدة - الإنترنت مثال عليها</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-blue"></div>
+          <div class="note-text"><strong>MAN (شبكة المدينة):</strong> تربط مباني أو مناطق داخل مدينة واحدة</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="topic-card" onclick="toggleCard(this)">
+      <div class="topic-header">
+        <div class="topic-title">
+          <div class="topic-icon icon-purple">🔌</div>
+          أجهزة الشبكة
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="topic-body">
+        <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+        <div class="note-item">
+          <div class="dot dot-purple"></div>
+          <div class="note-text"><strong>Router (الموجّه):</strong> يوزع الإنترنت بين الأجهزة ويحدد أفضل مسار للبيانات</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-purple"></div>
+          <div class="note-text"><strong>Switch (المحوّل):</strong> يربط الأجهزة داخل الشبكة المحلية بكابلات</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-purple"></div>
+          <div class="note-text"><strong>Access Point:</strong> يوفر الاتصال اللاسلكي WiFi</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-purple"></div>
+          <div class="note-text"><strong>Modem:</strong> يحوّل إشارة الإنترنت من مزود الخدمة إلى شبكتك</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="topic-card" onclick="toggleCard(this)">
+      <div class="topic-header">
+        <div class="topic-title">
+          <div class="topic-icon icon-green">📋</div>
+          بروتوكولات الشبكة
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="topic-body">
+        <div class="def-box">
+          <span>البروتوكول:</span> مجموعة قواعد تحكم كيفية تبادل البيانات بين الأجهزة - مثل اللغة المشتركة بينها.
+        </div>
+        <div class="note-item">
+          <div class="dot dot-green"></div>
+          <div class="note-text"><strong>TCP/IP:</strong> أساس الإنترنت، يضمن وصول البيانات بشكل صحيح</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-green"></div>
+          <div class="note-text"><strong>HTTP/HTTPS:</strong> نقل صفحات الويب - S تعني مشفّر وآمن</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-green"></div>
+          <div class="note-text"><strong>FTP:</strong> نقل الملفات بين الأجهزة</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-green"></div>
+          <div class="note-text"><strong>DNS:</strong> يحوّل اسم الموقع (google.com) إلى عنوان IP رقمي</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="topic-card" onclick="toggleCard(this)">
+      <div class="topic-header">
+        <div class="topic-title">
+          <div class="topic-icon icon-orange">🏠</div>
+          عنوان IP
+        </div>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="topic-body">
+        <div class="def-box">
+          <span>تعريف:</span> عنوان IP هو رقم فريد لكل جهاز على الشبكة، مثل العنوان البريدي للمنزل تماماً.
+        </div>
+        <div class="note-item">
+          <div class="dot dot-orange"></div>
+          <div class="note-text"><strong>IPv4:</strong> يتكون من 4 أرقام مفصولة بنقاط مثل: <strong style="color:#f97316">192.168.1.1</strong></div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-orange"></div>
+          <div class="note-text"><strong>IPv6:</strong> نسخة أحدث تحتوي على أرقام وحروف لأن IPv4 نفذت عناوينه</div>
+        </div>
+        <div class="note-item">
+          <div class="dot dot-orange"></div>
+          <div class="note-text"><strong>IP خاص:</strong> داخل شبكتك المنزلية فقط | <strong>IP عام:</strong> عنوانك على الإنترنت</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    صُنع بـ ❤️ لمساعدتك في دراسة إعلام الآلي
+  </footer>
+
+</div>
+
+<script>
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  function toggleCard(card) {
+    card.classList.toggle('open');
+  }
+</script>
+</body>
+</html>
